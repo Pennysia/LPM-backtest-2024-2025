@@ -1,0 +1,34 @@
+# Core Dependencies
+numpy==1.24.3
+pandas==2.0.3
+matplotlib==3.7.2
+seaborn==0.12.2
+
+# Data Processing
+scipy==1.11.1
+tqdm==4.65.0
+
+# API Requests
+requests==2.31.0
+
+# Web Interface
+streamlit==1.28.0
+
+# Jupyter for Analysis
+jupyter==1.0.0
+ipykernel==6.25.0
+notebook==7.0.0
+
+# Plotting
+plotly==5.15.0
+
+# Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+
+# Data Validation
+pydantic==2.1.1
+
+# Optional: Web3 for on-chain data (if needed)
+# web3==6.8.0
+# requests==2.31.0

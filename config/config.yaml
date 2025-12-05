@@ -1,0 +1,143 @@
+# Backtest Configuration
+
+simulation:
+  # Initial capital and price
+  initial_capital_usdc: 1000000  # 1M USDC
+  initial_price: 2000            # USDC per WETH (1 WETH = 2000 USDC)
+  
+  # Time period
+  start_date: "2021-01-01"
+  end_date: "2024-12-31"
+  duration_days: 1461            # ~4 years
+  
+  # Simulation parameters
+  timestep: "1h"                 # 1 hour intervals
+  seed: 42                       # Random seed for reproducibility
+
+pools:
+  uniswap_v2:
+    enabled: true
+    fee_rate: 0.003              # 0.3% (30 bps) - Standard Uniswap V2 fee
+    initial_reserve0: 1000000    # 1M USDC
+    initial_reserve1: 500        # 500 WETH
+  
+  pennysia:
+    enabled: true
+    # CUSTOMIZABLE SETTINGS:
+    fee_rate: 0.003              # Total fee rate (can be different from Uniswap)
+                                 # Examples: 0.001 (0.1%), 0.003 (0.3%), 0.005 (0.5%), 0.01 (1%)
+    
+    protocol_fee_share: 0.2      # Share of fees going to protocol (0.0 to 0.2)
+                                 # 0.0 = 100% fees to LPs (no protocol fee)
+                                 # 0.1 = 10% to protocol, 90% to LPs
+                                 # 0.2 = 20% to protocol, 80% to LPs (default)
+    
+    initial_reserve0: 1000000    # 1M USDC (split 50/50 between long/short)
+    initial_reserve1: 500        # 500 WETH (split 50/50 between long/short)
+
+data:
+  # Data source
+  source: "synthetic"            # Options: "synthetic", "csv", "api"
+  
+  # Synthetic data parameters
+  synthetic:
+    volatility: 0.02             # 2% daily volatility
+    trend: 0.0001                # Slight upward trend
+    mean_reversion: 0.1          # Mean reversion strength
+    
+  # CSV data parameters
+  csv:
+    price_file: "data/raw/prices.csv"
+    volume_file: "data/raw/volumes.csv"
+  
+  # API parameters
+  api:
+    provider: "coingecko"
+    pair: "ethereum"
+    vs_currency: "usd"
+
+strategies:
+  # Passive strategy (buy and hold)
+  - name: "passive"
+    type: "buy_and_hold"
+    enabled: true
+    allocation:
+      uniswap: 0.5               # 50% in Uniswap
+      pennysia_long: 0.25        # 25% in Pennysia long
+      pennysia_short: 0.25       # 25% in Pennysia short
+  
+  # Active rebalancing strategy
+  - name: "monthly_rebalance"
+    type: "periodic_rebalance"
+    enabled: false
+    frequency_days: 30
+    allocation:
+      uniswap: 0.5
+      pennysia_long: 0.25
+      pennysia_short: 0.25
+  
+  # Directional strategy (switch based on trend)
+  - name: "trend_following"
+    type: "directional"
+    enabled: false
+    lookback_days: 30
+    threshold: 0.05              # 5% move triggers rebalance
+    allocation_bullish:
+      uniswap: 0.3
+      pennysia_long: 0.6
+      pennysia_short: 0.1
+    allocation_bearish:
+      uniswap: 0.3
+      pennysia_long: 0.1
+      pennysia_short: 0.6
+
+metrics:
+  # Metrics to calculate
+  calculate:
+    - returns
+    - impermanent_loss
+    - fees
+    - sharpe_ratio
+    - max_drawdown
+    - volume_metrics
+  
+  # Benchmark
+  benchmark: "hodl"              # Compare to holding 50/50 USDC/WETH
+  
+  # Risk-free rate for Sharpe ratio
+  risk_free_rate: 0.02           # 2% annual
+
+output:
+  # Output directory
+  results_dir: "results"
+  
+  # Save options
+  save_plots: true
+  save_csv: true
+  save_json: true
+  
+  # Plot settings
+  plots:
+    dpi: 300
+    format: "png"
+    style: "seaborn-v0_8-darkgrid"
+  
+  # Reporting
+  generate_report: true
+  report_format: "html"          # Options: "html", "pdf", "markdown"
+
+advanced:
+  # Caching
+  use_cache: true
+  cache_dir: "data/cache"
+  
+  # Parallel processing
+  n_jobs: -1                     # Use all CPU cores
+  
+  # Logging
+  log_level: "INFO"              # Options: "DEBUG", "INFO", "WARNING", "ERROR"
+  log_file: "backtest.log"
+  
+  # Memory optimization
+  chunk_size: 10000              # Process data in chunks
+  low_memory: false

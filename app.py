@@ -525,12 +525,13 @@ with tab2:
         
             fig = go.Figure()
         
-            for idx, row in results.iterrows():
+            # Use display_results which has swapped labels
+            for idx, row in display_results.iterrows():
                 fig.add_trace(go.Bar(
-                    name=row['name'],
-                    x=[row['name']],
-                    y=[row['return_pct']],
-                    text=[f"{row['return_pct']:+.2f}%"],
+                    name=row['Strategy'],
+                    x=[row['Strategy']],
+                    y=[float(row['Return (%)'].rstrip('%'))],
+                    text=[row['Return (%)']],
                     textposition='outside'
                 ))
             
@@ -551,6 +552,17 @@ with tab2:
         
             value_history = sim.get_value_history()
         
+            # Create label swap function for line chart
+            def swap_chart_label(name):
+                if not is_bull_market and 'Pennysia' in name:
+                    return (name.replace('100% Long', 'TEMP_LONG')
+                               .replace('100% Short', '100% Long')
+                               .replace('TEMP_LONG', '100% Short')
+                               .replace('75% Long / 25% Short', 'TEMP_75_25')
+                               .replace('25% Long / 75% Short', '75% Long / 25% Short')
+                               .replace('TEMP_75_25', '25% Long / 75% Short'))
+                return name
+        
             fig = go.Figure()
         
             for col in value_history.columns[1:]:  # Skip timestamp
@@ -558,7 +570,7 @@ with tab2:
                     x=value_history['timestamp'],
                     y=value_history[col],
                     mode='lines',
-                    name=col,
+                    name=swap_chart_label(col),
                     line=dict(width=2)
                 ))
             

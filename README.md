@@ -2,6 +2,8 @@
 
 Interactive backtesting tool for comparing Pennysia's directional AMM against Uniswap V2 using real historical price data.
 
+> **🪟 Windows Users:** See [WINDOWS_SETUP.md](./WINDOWS_SETUP.md) for complete setup instructions!
+
 ## Overview
 
 Pennysia is a directional AMM on Sonic network that allows LPs to take long/short positions. This simulator compares LP returns across different strategies and market conditions.
@@ -15,31 +17,63 @@ Pennysia is a directional AMM on Sonic network that allows LPs to take long/shor
 
 ## Quick Start
 
+> **Windows Users:** See [WINDOWS_SETUP.md](./WINDOWS_SETUP.md) for detailed Windows-specific instructions!
+
 ### 1. Install Dependencies
 
+**On macOS/Linux:**
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Run the App
+**On Windows:**
+```cmd
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
 
+### 2. Build Coins Cache (REQUIRED!)
+
+Get a free CoinGecko API key first:
+1. Visit [CoinGecko API](https://www.coingecko.com/en/api)
+2. Sign up for free account
+3. Copy your API key (format: `CG-xxxxxxxxxxxxxxxxxxxx`)
+
+Then build the cache:
+
+**On macOS/Linux:**
 ```bash
+python scripts/build_coins_cache.py --api-key YOUR_API_KEY
+```
+
+**On Windows:**
+```cmd
+python scripts\build_coins_cache.py --api-key YOUR_API_KEY
+```
+
+This creates `src/data/coins_cache.py` with 19,000+ token IDs for validation.
+
+### 3. Run the App
+
+**On macOS/Linux:**
+```bash
+streamlit run app.py
+# Or use: ./run_app.sh
+```
+
+**On Windows:**
+```cmd
 streamlit run app.py
 ```
 
-Or use the provided script:
-```bash
-./run_app.sh
-```
+### 4. Use the App
 
-### 3. Get CoinGecko API Key
-
-1. Visit [CoinGecko API](https://www.coingecko.com/en/api)
-2. Sign up for free account
-3. Get your API key (format: `CG-xxxxxxxxxxxxxxxxxxxx`)
-4. Enter it in the sidebar when running the app
+1. Enter your CoinGecko API key in the sidebar
+2. Enter a token ID (e.g., `bitcoin`, `ethereum`, `sonic-3`)
+3. Fetch data and run simulations!
 
 ## Usage
 
@@ -79,6 +113,41 @@ Or use the provided script:
 └── data/raw/             # Historical price data (gitignored)
 ```
 
+## Troubleshooting
+
+### Import Errors (ModuleNotFoundError)
+
+**Problem:** `ModuleNotFoundError: No module named 'streamlit'` or similar
+
+**Solution:**
+1. Make sure virtual environment is activated (you should see `(venv)` in your prompt)
+2. Run `pip install -r requirements.txt` again
+3. On Windows, use `venv\Scripts\activate` not `source venv/bin/activate`
+
+### Coins Cache Errors
+
+**Problem:** `"get_coin_by_id" is not a known attribute` or token validation fails
+
+**Solution:**
+1. Build the coins cache: `python scripts/build_coins_cache.py --api-key YOUR_KEY`
+2. Verify `src/data/coins_cache.py` exists and is ~1.3MB
+3. If it exists but errors persist, delete it and rebuild
+
+### Windows PowerShell Errors
+
+**Problem:** `cannot be loaded because running scripts is disabled`
+
+**Solution:**
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### Still Having Issues?
+
+1. Check Python version: `python --version` (need 3.9+)
+2. Delete `venv` folder and start over
+3. See [WINDOWS_SETUP.md](./WINDOWS_SETUP.md) for Windows-specific help
+
 ## License
 
 MIT License
@@ -86,4 +155,4 @@ MIT License
 ---
 
 **Python**: 3.9+  
-**Last Updated**: December 6, 2025
+**Last Updated**: December 8, 2025
